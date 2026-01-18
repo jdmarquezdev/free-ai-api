@@ -11,10 +11,31 @@ const services: AIService[] = [
 ]
 let currentServiceIndex = 0;
 
-function getNextService() {
+const MODEL_TO_SERVICE: Record<string, AIService> = {
+    'moonshotai': groqService,
+    'gpt-oss-120b': cerebrasService,
+    'xiaomi': openrouterService
+};
+
+function getServiceForModel(model?: string): AIService {
+    if (!model) {
+        const service = services[currentServiceIndex];
+        if (!service) throw new Error('No services available');
+        currentServiceIndex = (currentServiceIndex + 1) % services.length;
+        return service;
+    }
+
+    for (const prefix of Object.keys(MODEL_TO_SERVICE)) {
+        if (model.startsWith(prefix)) {
+            const service = MODEL_TO_SERVICE[prefix];
+            if (service) return service;
+        }
+    }
+
     const service = services[currentServiceIndex];
+    if (!service) throw new Error('No services available');
     currentServiceIndex = (currentServiceIndex + 1) % services.length;
-    return service;    
+    return service;
 }
 
 function generateId(): string {
@@ -124,7 +145,7 @@ const server = Bun.serve({
             };
 
             try {
-                const service = getNextService();
+                const service = getServiceForModel(request.model);
                 console.log(`Using service: ${service?.name}`);
 
                 const stream = await service?.chat(request.messages, request.model);
@@ -230,7 +251,7 @@ const server = Bun.serve({
         if (req.method === 'POST' && pathname === '/chat') {
             const body = await req.json() as { messages: ChatMessage[] };
             const { messages } = body;
-            const service = getNextService();
+            const service = getServiceForModel(undefined);
 
             console.log(`Using service: ${service?.name}`);
             const stream = await service?.chat(messages, undefined);
