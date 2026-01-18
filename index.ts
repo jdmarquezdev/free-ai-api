@@ -204,22 +204,10 @@ const server = Bun.serve({
                 object: 'list',
                 data: [
                     {
-                        id: 'moonshotai/kimi-k2-instruct-0905',
+                        id: 'free-api-ai',
                         object: 'model',
                         created: Math.floor(Date.now() / 1000),
-                        owned_by: 'Groq'
-                    },
-                    {
-                        id: 'gpt-oss-120b',
-                        object: 'model',
-                        created: Math.floor(Date.now() / 1000),
-                        owned_by: 'Cerebras'
-                    },
-                    {
-                        id: 'xiaomi/mimo-v2-flash:free',
-                        object: 'model',
-                        created: Math.floor(Date.now() / 1000),
-                        owned_by: 'OpenRouter'
+                        owned_by: 'free-ai-api'
                     }
                 ]
             }), {
