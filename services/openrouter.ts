@@ -1,5 +1,5 @@
 import { OpenRouter } from "@openrouter/sdk";
-import type { AIService, ChatMessage } from '../types';
+import type { AIService, ChatMessage, OpenRouterStreamingChunk } from '../types';
 
 if (!process.env.OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY environment variable is required');
@@ -21,9 +21,10 @@ export const openrouterService: AIService = {
         });
 
         return (async function* () {
-            for await (const chunk of stream) {
-                yield (chunk as any).choices[0]?.delta?.content || '';
+            for await (const chunk of stream as AsyncIterable<OpenRouterStreamingChunk>) {
+                const choice = chunk.choices[0];
+                yield choice?.delta?.content || '';
             }
-        })();        
-    }   
+        })();
+    }
 }

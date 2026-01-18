@@ -41,3 +41,47 @@ export interface OpenAIChatCompletionChunk {
         total_tokens: number;
     };
 }
+
+export interface CerebrasChunkChoice {
+    index: number;
+    delta?: {
+        content?: string | null;
+        reasoning?: string | null;
+        role?: 'assistant' | 'user' | 'system' | 'tool' | null;
+        tokens?: number[] | null;
+        tool_calls?: unknown[] | null;
+    } | null;
+    finish_reason?: 'stop' | 'length' | 'content_filter' | 'tool_calls' | null;
+    logprobs?: unknown;
+}
+
+export interface CerebrasChunk {
+    id: string;
+    created: number;
+    model: string;
+    object: 'chat.completion.chunk' | 'text_completion';
+    system_fingerprint: string;
+    choices?: CerebrasChunkChoice[] | null;
+}
+
+export interface OpenRouterStreamingChoice {
+    delta: {
+        role?: 'assistant';
+        content?: string | null;
+        reasoning?: string | null;
+        refusal?: string | null;
+        tool_calls?: unknown;
+    };
+    finishReason: 'stop' | 'length' | 'content_filter' | 'tool_calls' | null;
+    index: number;
+    logprobs?: unknown;
+}
+
+export interface OpenRouterStreamingChunk {
+    id: string;
+    choices: OpenRouterStreamingChoice[];
+    created: number;
+    model: string;
+    object: 'chat.completion.chunk';
+    systemFingerprint?: string | null;
+}
