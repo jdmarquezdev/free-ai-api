@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { cerebrasService } from "./services/cerebras";
 import { groqService } from "./services/groq";
 import { openrouterService } from "./services/openrouter";
