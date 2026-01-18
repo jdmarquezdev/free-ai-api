@@ -11,26 +11,11 @@ const services: AIService[] = [
 ]
 let currentServiceIndex = 0;
 
-const MODEL_TO_SERVICE: Record<string, AIService> = {
-    'moonshotai': groqService,
-    'gpt-oss-120b': cerebrasService,
-    'xiaomi': openrouterService
-};
-
-function getServiceForModel(model?: string): { service: AIService; model: string | undefined } {
-    if (model) {
-        for (const prefix of Object.keys(MODEL_TO_SERVICE)) {
-            if (model.startsWith(prefix)) {
-                const service = MODEL_TO_SERVICE[prefix];
-                if (service) return { service, model };
-            }
-        }
-    }
-
+function getNextService(): AIService {
     const service = services[currentServiceIndex];
     if (!service) throw new Error('No services available');
     currentServiceIndex = (currentServiceIndex + 1) % services.length;
-    return { service, model: undefined };
+    return service;
 }
 
 function generateId(): string {
@@ -140,10 +125,10 @@ const server = Bun.serve({
             };
 
             try {
-                const { service, model } = getServiceForModel(request.model);
+                const service = getNextService();
                 console.log(`Using service: ${service.name}`);
 
-                const stream = await service.chat(request.messages, model);
+                const stream = await service.chat(request.messages, undefined);
 
                 if (!stream) {
                     return new Response(JSON.stringify({
@@ -246,10 +231,10 @@ const server = Bun.serve({
         if (req.method === 'POST' && pathname === '/chat') {
             const body = await req.json() as { messages: ChatMessage[] };
             const { messages } = body;
-            const { service, model } = getServiceForModel(undefined);
+            const service = getNextService();
 
             console.log(`Using service: ${service.name}`);
-            const stream = await service.chat(messages, model);
+            const stream = await service.chat(messages, undefined);
 
             return new Response(stream, {
                 headers: {
