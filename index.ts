@@ -17,6 +17,16 @@ function getNextService(): AIService {
     return service;
 }
 
+function getModelForService(service: AIService, requestedModel?: string): string | undefined {
+    if (requestedModel && requestedModel !== 'free-api-ai') {
+        return requestedModel;
+    }
+    if (service.name === 'Groq') return 'moonshotai/kimi-k2-instruct-0905';
+    if (service.name === 'Cerebras') return 'gpt-oss-120b';
+    if (service.name === 'OpenRouter') return 'xiaomi/mimo-v2-flash:free';
+    return undefined;
+}
+
 function getDefaultModelForService(service: AIService): string | undefined {
     if (service.name === 'Groq') return 'moonshotai/kimi-k2-instruct-0905';
     if (service.name === 'Cerebras') return 'gpt-oss-120b';
@@ -132,9 +142,10 @@ const server = Bun.serve({
 
             try {
                 const service = getNextService();
-                console.log(`Using service: ${service.name}`);
+                const model = getModelForService(service, request.model);
+                console.log(`Using service: ${service.name} with model: ${model}`);
 
-                const stream = await service.chat(request.messages, undefined);
+                const stream = await service.chat(request.messages, model);
 
                 if (!stream) {
                     return new Response(JSON.stringify({
@@ -226,9 +237,10 @@ const server = Bun.serve({
             const body = await req.json() as { messages: ChatMessage[] };
             const { messages } = body;
             const service = getNextService();
+            const model = getModelForService(service, undefined);
 
-            console.log(`Using service: ${service.name}`);
-            const stream = await service.chat(messages, undefined);
+            console.log(`Using service: ${service.name} with model: ${model}`);
+            const stream = await service.chat(messages, model);
 
             return new Response(stream, {
                 headers: {
