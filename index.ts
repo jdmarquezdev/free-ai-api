@@ -17,25 +17,20 @@ const MODEL_TO_SERVICE: Record<string, AIService> = {
     'xiaomi': openrouterService
 };
 
-function getServiceForModel(model?: string): AIService {
-    if (!model) {
-        const service = services[currentServiceIndex];
-        if (!service) throw new Error('No services available');
-        currentServiceIndex = (currentServiceIndex + 1) % services.length;
-        return service;
-    }
-
-    for (const prefix of Object.keys(MODEL_TO_SERVICE)) {
-        if (model.startsWith(prefix)) {
-            const service = MODEL_TO_SERVICE[prefix];
-            if (service) return service;
+function getServiceForModel(model?: string): { service: AIService; model: string | undefined } {
+    if (model) {
+        for (const prefix of Object.keys(MODEL_TO_SERVICE)) {
+            if (model.startsWith(prefix)) {
+                const service = MODEL_TO_SERVICE[prefix];
+                if (service) return { service, model };
+            }
         }
     }
 
     const service = services[currentServiceIndex];
     if (!service) throw new Error('No services available');
     currentServiceIndex = (currentServiceIndex + 1) % services.length;
-    return service;
+    return { service, model: undefined };
 }
 
 function generateId(): string {
@@ -145,10 +140,10 @@ const server = Bun.serve({
             };
 
             try {
-                const service = getServiceForModel(request.model);
-                console.log(`Using service: ${service?.name}`);
+                const { service, model } = getServiceForModel(request.model);
+                console.log(`Using service: ${service.name}`);
 
-                const stream = await service?.chat(request.messages, request.model);
+                const stream = await service.chat(request.messages, model);
 
                 if (!stream) {
                     return new Response(JSON.stringify({
@@ -251,10 +246,10 @@ const server = Bun.serve({
         if (req.method === 'POST' && pathname === '/chat') {
             const body = await req.json() as { messages: ChatMessage[] };
             const { messages } = body;
-            const service = getServiceForModel(undefined);
+            const { service, model } = getServiceForModel(undefined);
 
-            console.log(`Using service: ${service?.name}`);
-            const stream = await service?.chat(messages, undefined);
+            console.log(`Using service: ${service.name}`);
+            const stream = await service.chat(messages, model);
 
             return new Response(stream, {
                 headers: {
