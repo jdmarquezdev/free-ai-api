@@ -17,6 +17,13 @@ function getNextService(): AIService {
     return service;
 }
 
+function getDefaultModelForService(service: AIService): string | undefined {
+    if (service.name === 'Groq') return 'moonshotai/kimi-k2-instruct-0905';
+    if (service.name === 'Cerebras') return 'gpt-oss-120b';
+    if (service.name === 'OpenRouter') return 'xiaomi/mimo-v2-flash:free';
+    return undefined;
+}
+
 function generateId(): string {
     return 'chatcmpl-' + Math.random().toString(36).substring(2, 15);
 }
@@ -208,6 +215,24 @@ const server = Bun.serve({
                         object: 'model',
                         created: Math.floor(Date.now() / 1000),
                         owned_by: 'free-ai-api'
+                    },
+                    {
+                        id: 'moonshotai/kimi-k2-instruct-0905',
+                        object: 'model',
+                        created: Math.floor(Date.now() / 1000),
+                        owned_by: 'Groq'
+                    },
+                    {
+                        id: 'gpt-oss-120b',
+                        object: 'model',
+                        created: Math.floor(Date.now() / 1000),
+                        owned_by: 'Cerebras'
+                    },
+                    {
+                        id: 'xiaomi/mimo-v2-flash:free',
+                        object: 'model',
+                        created: Math.floor(Date.now() / 1000),
+                        owned_by: 'OpenRouter'
                     }
                 ]
             }), {
