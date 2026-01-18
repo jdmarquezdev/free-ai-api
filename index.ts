@@ -18,7 +18,7 @@ function getNextService(): AIService {
 }
 
 function getModelForService(service: AIService, requestedModel?: string): string | undefined {
-    if (requestedModel && requestedModel !== 'free-api-ai') {
+    if (requestedModel && requestedModel !== 'free-ai-api') {
         return requestedModel;
     }
     if (service.name === 'Groq') return 'moonshotai/kimi-k2-instruct-0905';
@@ -222,7 +222,7 @@ const server = Bun.serve({
                 object: 'list',
                 data: [
                     {
-                        id: 'free-api-ai',
+                        id: 'free-ai-api',
                         object: 'model',
                         created: Math.floor(Date.now() / 1000),
                         owned_by: 'free-ai-api'

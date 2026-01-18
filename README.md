@@ -13,7 +13,7 @@ Una API unificada que combina múltiples servicios de IA (Groq, Cerebras, OpenRo
 
 | Modelo | Descripción |
 |--------|-------------|
-| `free-api-ai` | Usa round-robin entre proveedores con sus modelos por defecto |
+| `free-ai-api` | Usa round-robin entre proveedores con sus modelos por defecto |
 
 Modelos internos por proveedor:
 - Groq: `moonshotai/kimi-k2-instruct-0905`
@@ -58,7 +58,7 @@ El servidor correra en `http://localhost:3000`
 curl -X POST "http://localhost:3000/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "free-api-ai",
+    "model": "free-ai-api",
     "messages": [{"role": "user", "content": "Hola!"}],
     "stream": true
   }'
@@ -91,7 +91,7 @@ client = openai.OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="free-api-ai",
+    model="free-ai-api",
     messages=[{"role": "user", "content": "Dime un dato curioso"}],
     stream=True
 )
@@ -108,7 +108,7 @@ const response = await fetch('http://localhost:3000/v1/chat/completions', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    model: 'free-api-ai',
+    model: 'free-ai-api',
     messages: [{ role: 'user', content: 'Hola!' }],
     stream: true
   })
@@ -135,7 +135,7 @@ En n8n, usa el nodo HTTP Request con:
 - **Body (JSON)**:
   ```json
   {
-    "model": "free-api-ai",
+    "model": "free-ai-api",
     "messages": [{"role": "user", "content": "{{ $json.message }}"}],
     "stream": false
   }
