@@ -1,21 +1,24 @@
 # Free AI API
 
-Una API unificada que combina múltiples servicios de IA (Groq, Cerebras, OpenRouter) con una interfaz compatible con OpenAI.
+Una API unificada que combina múltiples servicios de IA (Groq, Cerebras, OpenRouter) con interfaz compatible con OpenAI.
 
 ## Caracteristicas
 
-- **API compatible con OpenAI** - Usa el mismo formato que la API de OpenAI
+- **API compatible con OpenAI** - Formato estándar de OpenAI
 - **Multi-provider** - Round-robin entre Groq, Cerebras y OpenRouter
 - **Streaming** - Soporte completo para respuestas en streaming
-- **Bun** - Servidor rapido con Bun runtime
+- **Bun** - Servidor rápido con Bun runtime
 
-## Modelos disponibles
+## Modelo
 
-| Modelo | Provider |
-|--------|----------|
-| `moonshotai/kimi-k2-instruct-0905` | Groq |
-| `gpt-oss-120b` | Cerebras |
-| `xiaomi/mimo-v2-flash:free` | OpenRouter |
+| Modelo | Descripción |
+|--------|-------------|
+| `free-api-ai` | Usa round-robin entre proveedores con sus modelos por defecto |
+
+Modelos internos por proveedor:
+- Groq: `moonshotai/kimi-k2-instruct-0905`
+- Cerebras: `gpt-oss-120b`
+- OpenRouter: `xiaomi/mimo-v2-flash:free`
 
 ## Instalacion
 
@@ -25,10 +28,10 @@ bun install
 
 ## Configuracion
 
-Crea un archivo `.env` con tus API keys:
+Configura las variables de entorno en tu plataforma de despliegue:
 
 ```env
-# Required - al menos uno de estos
+# Al menos una de estas (todas recomendadas para round-robin)
 GROQ_API_KEY=gsk_...
 CEREBRAS_API_KEY=...
 OPENROUTER_API_KEY=sk-...
@@ -55,7 +58,7 @@ El servidor correra en `http://localhost:3000`
 curl -X POST "http://localhost:3000/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "moonshotai/kimi-k2-instruct-0905",
+    "model": "free-api-ai",
     "messages": [{"role": "user", "content": "Hola!"}],
     "stream": true
   }'
@@ -88,7 +91,7 @@ client = openai.OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="moonshotai/kimi-k2-instruct-0905",
+    model="free-api-ai",
     messages=[{"role": "user", "content": "Dime un dato curioso"}],
     stream=True
 )
@@ -105,7 +108,7 @@ const response = await fetch('http://localhost:3000/v1/chat/completions', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    model: 'moonshotai/kimi-k2-instruct-0905',
+    model: 'free-api-ai',
     messages: [{ role: 'user', content: 'Hola!' }],
     stream: true
   })
@@ -120,6 +123,23 @@ while (true) {
   console.log(decoder.decode(value));
 }
 ```
+
+### n8n
+
+En n8n, usa el nodo HTTP Request con:
+- **Method**: POST
+- **URL**: `http://tu-servidor:3000/v1/chat/completions`
+- **Authentication**: None
+- **Headers**:
+  - `Content-Type`: `application/json`
+- **Body (JSON)**:
+  ```json
+  {
+    "model": "free-api-ai",
+    "messages": [{"role": "user", "content": "{{ $json.message }}"}],
+    "stream": false
+  }
+  ```
 
 ## Estructura del proyecto
 
